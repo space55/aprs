@@ -9,6 +9,7 @@ package aprs
 
 import (
 	"bytes"
+	"log"
 	"net"
 )
 
@@ -20,7 +21,6 @@ const (
 )
 
 var c = map[string]net.Conn{}
-
 
 func kissEscape(b []byte) []byte {
 	buf := bytes.NewBuffer([]byte{})
@@ -45,8 +45,9 @@ func getConn(dial string) net.Conn {
 
 	var conn net.Conn
 	var err error
+	var ok bool
 
-	if conn, ok := c[dial]; !ok {
+	if conn, ok = c[dial]; !ok {
 		c[dial], err = net.Dial("tcp", dial)
 		if err != nil {
 			log.Fatal(err)
@@ -65,7 +66,7 @@ func resetConn(dial string) net.Conn {
 		conn.Close()
 	}
 
-	conn, err := net.Dial(dial)
+	conn, err := net.Dial("tcp4", dial)
 	if err != nil {
 		log.Fatal(err)
 	}
