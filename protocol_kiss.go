@@ -87,13 +87,13 @@ func (f Frame) SendKISS(dial string) (err error) {
 
 	const port = 0 // XXX this can be made a variable if necessary
 
-	conn, err := net.Dial("tcp", dial)
-	if err != nil {
-		return
-	}
-	defer conn.Close()
+	conn := getConn(dial)
 
-	conn.Write([]byte{fend, cmdData | ((port & 0xf) << 4)})
+	_, err = conn.Write([]byte{fend, cmdData | ((port & 0xf) << 4)})
+	if err != nil {
+		resetConn((dial))
+		conn.Write([]byte{fend, cmdData | ((port & 0xf) << 4)})
+	}
 	conn.Write(kissEscape(f.Bytes()))
 	conn.Write([]byte{fend})
 
