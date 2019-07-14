@@ -19,6 +19,9 @@ const (
 	tfesc = 0xdd // Transformed frame escape
 )
 
+var c = map[string]net.Conn{}
+
+
 func kissEscape(b []byte) []byte {
 	buf := bytes.NewBuffer([]byte{})
 	for i := range b {
@@ -33,6 +36,44 @@ func kissEscape(b []byte) []byte {
 	}
 
 	return buf.Bytes()
+}
+
+func getConn(dial string) net.Conn {
+	if c == nil {
+		c = make(map[string]net.Conn)
+	}
+
+	var conn net.Conn
+	var err error
+
+	if conn, ok := c[dial]; !ok {
+		c[dial], err = net.Dial("tcp", dial)
+		if err != nil {
+			log.Fatal(err)
+		}
+		conn = c[dial]
+	}
+	return conn
+}
+
+func resetConn(dial string) net.Conn {
+	if c == nil {
+		c = make(map[string]net.Conn)
+	}
+
+	if conn, ok := c[dial]; ok {
+		conn.Close()
+	}
+
+	conn, err := net.Dial(dial)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	c[dial] = conn
+
+	return conn
+
 }
 
 // SendKISS sends a Frame to the specified network TNC device
