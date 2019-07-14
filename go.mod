@@ -1,4 +1,4 @@
-module github.com/ebarkie/aprs
+module github.com/space55/aprs
 
 require (
 	github.com/ebarkie/weatherlink v1.0.0
